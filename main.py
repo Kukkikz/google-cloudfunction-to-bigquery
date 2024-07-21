@@ -1,10 +1,11 @@
 import base64
+import functions_framework
+
 import datetime
 import os
 
 import requests
 from google.cloud import bigquery
-
 
 class Config:
     dataset_id = os.environ.get("dataset_id")
@@ -24,12 +25,10 @@ def get_data(url: str) -> dict:
     response = requests.get(url)
     return response.json()
 
-
-def insert_data(event, context):
+# Triggered from a message on a Cloud Pub/Sub topic.
+@functions_framework.cloud_event
+def insert_data(cloud_event):
     """Background Cloud Function to be triggered by Pub/Sub.
-    Args:
-         event (dict): The dictionary with data specific to this type of event.
-         context (google.cloud.functions.Context): The Cloud Functions event metadata.
     """
     client = bigquery.Client()
     dataset_ref = client.dataset(Config.dataset_id)
